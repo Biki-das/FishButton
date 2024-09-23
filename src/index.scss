@@ -1,0 +1,311 @@
+$height: 64;
+$font-size: 24;
+$button-text-color: darken(rgba(70, 180, 225, 1), 20%);
+$glass-color: rgba(70, 180, 225, 0.08);
+$glass-border-color: rgba(70, 180, 225, 0.5);
+$glass-border-color-focused: darken(rgba(70, 180, 225, 1), 20%);
+$floor-color: rgba(70, 180, 225, 0.3);
+$water-color: rgba(70, 180, 225, 0.3);
+
+@keyframes fish-bounce {
+  from {
+    transform: translateY(-2px);
+  }
+  to {
+    transform: translateY(2px);
+  }
+}
+
+@keyframes water {
+  from {
+    transform: rotateX(90deg) translateZ(-12px);
+  }
+  to {
+    transform: rotateX(90deg) translateZ(-6px);
+  }
+}
+
+@keyframes bubble-rise {
+  0% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) scale(1.2);
+    opacity: 0;
+  }
+}
+
+body,
+#container {
+  background-color: #f1f1f1;
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-family: "Inter", system-ui;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+.button-container {
+  position: relative;
+  width: auto;
+  height: #{$height}px;
+}
+
+.aquarium,
+.aquarium-button {
+  color: $button-text-color;
+  font-family: inherit;
+  font-size: #{$font-size}px;
+  font-weight: bold;
+}
+
+.aquarium-button {
+  color: transparent;
+  background: transparent;
+  height: #{$height}px;
+  padding: 0;
+  padding-left: 24px;
+  padding-right: 24px;
+  border: 0;
+  margin: 0;
+  outline: 0;
+
+  &:not(:disabled) {
+    cursor: pointer;
+  }
+
+  &:hover:not(:disabled) + .aquarium {
+    transform: scale(1) rotateX(-15deg) rotateY(-15deg);
+  }
+
+  &:active:not(:disabled) + .aquarium {
+    transform: scale(1) rotateX(-10deg) rotateY(-10deg) translateZ(-25px)
+      translateX(-2px);
+  }
+
+  &:focus-visible + .aquarium .wall {
+    border-color: $glass-border-color-focused;
+  }
+
+  &:disabled + .aquarium {
+    filter: grayscale(100%);
+  }
+}
+
+.aquarium {
+  $wall-depth: 68;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: -3px;
+  left: 3px;
+  transform-origin: center;
+  transform-style: preserve-3d;
+  transition: transform 225ms ease-out;
+  transform: scale(1) rotateX(-5deg) rotateY(-5deg);
+  pointer-events: none;
+  user-select: none;
+
+  .interior {
+    width: calc(100% + 1px);
+    height: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transform-origin: center;
+    transform-style: preserve-3d;
+    position: absolute;
+
+    &.back {
+      transform: translateZ(#{$wall-depth * 0.33}px);
+    }
+
+    &.front {
+      transform: translateZ(#{$wall-depth * 0.66}px);
+    }
+  }
+
+  .water {
+    background-color: $water-color;
+    width: 5%;
+    height: #{$wall-depth}px;
+    transform-origin: top center;
+    transform-style: preserve-3d;
+    position: absolute;
+    top: 0;
+    left: 0%;
+    animation-name: water;
+    animation-duration: 1.8s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+
+    @for $i from 1 through 20 {
+      &.water-#{$i} {
+        left: #{($i - 1) * 5%};
+        animation-delay: #{($i - 1) * -0.15}s;
+      }
+    }
+  }
+
+  .wall {
+    background-color: $glass-color;
+    border: 2px solid $glass-border-color;
+    width: calc(100% + 1px);
+    height: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transform-origin: center;
+    transform-style: preserve-3d;
+    &.front {
+      transform: translateZ(#{$wall-depth}px);
+    }
+    &.back {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      filter: brightness(90%);
+    }
+    &.left {
+      width: #{$wall-depth}px;
+      transform-origin: center left;
+      transform: rotateY(-90deg);
+    }
+    &.right {
+      width: #{$wall-depth}px;
+      right: 0;
+      left: auto;
+      transform-origin: center right;
+      transform: rotateY(90deg);
+    }
+  }
+
+  .floor {
+    background-color: $floor-color;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transform-origin: center;
+    transform-style: preserve-3d;
+    transform: rotateX(90deg) translateY(50%) translateZ(-32px);
+  }
+}
+
+.fish-container {
+  $fish-width: 24;
+  $fish-height: 12;
+  width: calc(100% - #{$fish-width}px);
+  height: calc(100% - #{$fish-height * 2}px);
+  transform-origin: center;
+  transform-style: preserve-3d;
+  transition: transform 2000ms ease-out;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  &.fast {
+    transition-duration: 500ms;
+  }
+  &:nth-of-type(1) {
+    filter: brightness(100%);
+  }
+  &:nth-of-type(2) {
+    filter: brightness(90%);
+  }
+  &:nth-of-type(3) {
+    filter: brightness(80%);
+  }
+
+  .fish {
+    width: #{$fish-width}px;
+    height: #{$fish-height}px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation-name: fish-bounce;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+
+    &.type-1 path {
+      fill: color-mix(in oklch, slategrey 80%, transparent);
+    }
+    &.type-2 path {
+      fill: color-mix(in oklch, orangered 80%, transparent);
+    }
+    &.type-3 path {
+      fill: color-mix(in oklch, orange 80%, transparent);
+    }
+
+    svg {
+      width: #{$fish-width}px;
+      height: #{$fish-height}px;
+      transition: transform 225ms ease-out;
+    }
+  }
+}
+
+.bubble {
+  position: absolute;
+  bottom: -20px;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: bubble-rise 8s infinite ease-in;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    width: 30%;
+    height: 30%;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+  }
+
+  &.small {
+    width: 10px;
+    height: 10px;
+  }
+
+  &.medium {
+    width: 15px;
+    height: 15px;
+    animation-duration: 10s;
+  }
+
+  &.large {
+    width: 20px;
+    height: 20px;
+    animation-duration: 12s;
+  }
+}
+
+.controls {
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  label {
+    margin-right: 4px;
+  }
+  input[type="text"] {
+    border: 1px solid lightgray;
+    border-radius: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+}
